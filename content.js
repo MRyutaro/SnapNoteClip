@@ -29,6 +29,10 @@ try {
           selectionDiv.style.width = "0px";
           selectionDiv.style.height = "0px";
           selectionDiv.style.display = "block";  // 赤枠を表示
+
+          // 💡 文字の青い選択を防ぐ
+          document.body.style.userSelect = "none";
+
       }
 
       // マウスが動いたとき
@@ -71,6 +75,9 @@ try {
               }
           });
           console.log("📸 スクリーンショットを撮影しました！");
+
+          // 💡 選択が終わったら user-select を元に戻す
+          document.body.style.userSelect = "";
 
           cleanupScreenshotSelection();
       }
