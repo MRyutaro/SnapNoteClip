@@ -23,7 +23,7 @@ chrome.commands.onCommand.addListener((command) => {
 			chrome.scripting
 				.executeScript({
 					target: { tabId: tabs[0].id },
-					files: ["content.js"],
+					files: ["screenshot.js"],
 				})
 				.then(() => {
 					console.log("スクリーンショット処理を開始しました");
@@ -37,59 +37,40 @@ chrome.commands.onCommand.addListener((command) => {
 
 // content.js からのメッセージを受信して、スクリーンショットを取得・切り抜く処理
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-	console.log("📩 メッセージを受信:", message);
+  if (message.action === "capture_screenshot") {
+      chrome.tabs.captureVisibleTab(null, { format: "png" }, (imageUri) => {
+          console.log("📸 全画面スクショ取得:", imageUri);
 
-	if (message.action === "capture_screenshot") {
-		// 全画面スクリーンショットを取得（png形式）
-		chrome.tabs.captureVisibleTab(null, { format: "png" }, (imageUri) => {
-			console.log("📸 全画面スクショ取得:", imageUri);
+          fetch(imageUri)
+              .then(response => response.blob())
+              .then(blob => createImageBitmap(blob))
+              .then(imageBitmap => {
+                  let canvas = new OffscreenCanvas(message.coords.width, message.coords.height);
+                  let ctx = canvas.getContext("2d");
+                  ctx.drawImage(
+                      imageBitmap,
+                      message.coords.x, message.coords.y,
+                      message.coords.width, message.coords.height,
+                      0, 0,
+                      message.coords.width, message.coords.height
+                  );
+                  return canvas.convertToBlob({ type: "image/png" });
+              })
+              .then(blob => {
+                  let reader = new FileReader();
+                  reader.onload = function () {
+                      let croppedImageUri = reader.result;
+                      console.log("🎯 切り抜き後の画像:", croppedImageUri);
 
-			// fetch API で画像を Blob として取得し、createImageBitmap() で ImageBitmap に変換
-			fetch(imageUri)
-				.then((response) => response.blob())
-				.then((blob) => {
-					console.log("背景スクリプト: Blob取得成功");
-					return createImageBitmap(blob);
-				})
-				.then((imageBitmap) => {
-					console.log("背景スクリプト: ImageBitmap生成成功");
-					// OffscreenCanvas を利用して、選択範囲だけを切り抜く
-					let canvas = new OffscreenCanvas(message.coords.width, message.coords.height);
-					let ctx = canvas.getContext("2d");
-					ctx.drawImage(
-						imageBitmap,
-						message.coords.x, // 切り抜き開始位置 X（デバイスピクセル単位）
-						message.coords.y, // 切り抜き開始位置 Y
-						message.coords.width, // 切り抜く幅
-						message.coords.height, // 切り抜く高さ
-						0, // Canvas 上の描画開始位置 X
-						0, // Canvas 上の描画開始位置 Y
-						message.coords.width, // 描画する幅
-						message.coords.height // 描画する高さ
-					);
-					console.log("背景スクリプト: drawImage 成功");
-					return canvas.convertToBlob({ type: "image/png" });
-				})
-				.then((blob) => {
-					console.log("背景スクリプト: convertToBlob 成功");
-					let reader = new FileReader();
-					reader.onload = function () {
-						let croppedImageUri = reader.result;
-						console.log("🎯 切り抜き後の画像:", croppedImageUri);
-						// 切り抜いた画像データを chrome.storage.local に保存
-						chrome.storage.local.set({ screenshot: croppedImageUri, coords: message.coords }, () => {
-							console.log("✅ スクショが chrome.storage.local に保存されました！");
-							sendResponse({ success: true });
-						});
-					};
-					reader.readAsDataURL(blob);
-				})
-				.catch((err) => {
-					console.error("❌ 画像処理エラー:", err);
-					sendResponse({ success: false, error: err });
-				});
-		});
-		// 非同期処理のため true を返す
-		return true;
-	}
+                      // **スクショを `chrome.storage.local` に保存**
+                      chrome.storage.local.set({ screenshot: croppedImageUri, coords: message.coords }, () => {
+                          console.log("✅ スクリーンショットが `chrome.storage.local` に保存されました！");
+                      });
+                  };
+                  reader.readAsDataURL(blob);
+              })
+              .catch(err => console.error("❌ 画像処理エラー:", err));
+      });
+      return true;
+  }
 });
