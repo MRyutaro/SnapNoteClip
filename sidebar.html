@@ -1,87 +1,88 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>チャットサイドパネル</title>
-    <style>
-        body {
-            width: 300px;
-            height: 100vh;
-            background: #f5f5f5;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            font-family: Arial, sans-serif;
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>チャットサイドパネル</title>
+		<style>
+			body {
+				width: auto;
+				height: 100%;
+				background: #f5f5f5;
+				display: flex;
+				flex-direction: column;
+				font-family: Arial, sans-serif;
+                -ms-overflow-style: none; /* IE, Edge用 */
+			}
 
-        h2 {
-            text-align: center;
-        }
+            /* webkit-scrollbarでスクロールバーを非表示にする */
+            body::-webkit-scrollbar {
+                display: none;
+            }
 
-        #chat-box {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            background: white;
-            height: 70%;
-            display: flex;
-            flex-direction: column;
-        }
+			#chat-box {
+				flex: 1;
+				border: 1px solid #ddd;
+				padding: 10px;
+				background: white;
+				width: auto;
+				height: 50%;
+				display: flex;
+				flex-direction: column;
+			}
 
-        .message {
-            background: #e0e0e0;
-            padding: 8px;
-            margin: 5px;
-            border-radius: 5px;
-            text-align: left;
-            max-width: 80%;
-            word-wrap: break-word; /* 長いテキストの自動改行 */
-        }
+			.message {
+				background: #e0e0e0;
+				/* padding: 8px; */
+				margin: 5px;
+				border-radius: 5px;
+				text-align: left;
+				width: fit-content;
+				word-wrap: break-word; /* 長いテキストの自動改行 */
+			}
 
-        .my-message {
-            background: #4caf50;
-            color: white;
-            text-align: right;
-            margin-left: auto;
-        }
+			.my-message {
+				background: #4caf50;
+				color: white;
+				text-align: right;
+				margin-left: auto;
+                padding: 8px;
+			}
 
-        #input-container {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
+			#input-container {
+				display: flex;
+				gap: 5px;
+				margin-top: 10px;
+			}
 
-        #message-input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+			#message-input {
+				flex: 1;
+				padding: 8px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
 
-        button {
-            padding: 8px 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+			button {
+				padding: 8px 12px;
+				background: #007bff;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
 
-        button:hover {
-            background: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <h2>チャット</h2>
-    <div id="chat-box"></div>
-    <div id="input-container">
-        <input type="text" id="message-input" placeholder="メッセージを入力..." />
-        <button id="send-btn">送信</button>
-    </div>
+			button:hover {
+				background: #0056b3;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="chat-box"></div>
+		<div id="input-container">
+			<input type="text" id="message-input" placeholder="メッセージを入力..." />
+			<button id="send-btn">送信</button>
+		</div>
 
-    <script src="sidebar.js"></script>
-</body>
+		<script src="sidebar.js"></script>
+	</body>
 </html>
