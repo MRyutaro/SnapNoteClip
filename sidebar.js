@@ -10,6 +10,21 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
+	// 画像をクリップボードから貼り付ける
+	document.addEventListener("paste", function (event) {
+		const items = event.clipboardData.items;
+		for (let item of items) {
+			if (item.type.startsWith("image/")) {
+				const blob = item.getAsFile();
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					addImageToChat(e.target.result);
+				};
+				reader.readAsDataURL(blob);
+			}
+		}
+	});
+
 	function sendMessage() {
 		const messageText = messageInput.value.trim();
 		if (messageText === "") return;
@@ -20,12 +35,27 @@ document.addEventListener("DOMContentLoaded", function () {
 		messageElement.textContent = messageText;
 
 		chatBox.appendChild(messageElement);
-
-		// 最新のメッセージを常に表示
-		setTimeout(() => {
-			messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
-		}, 100);
+		scrollToBottom();
 
 		messageInput.value = "";
+	}
+
+	function addImageToChat(imageSrc) {
+		const imageElement = document.createElement("img");
+		imageElement.src = imageSrc;
+		imageElement.classList.add("chat-image");
+
+		const messageElement = document.createElement("div");
+		messageElement.classList.add("message", "my-message");
+		messageElement.appendChild(imageElement);
+
+		chatBox.appendChild(messageElement);
+		scrollToBottom();
+	}
+
+	function scrollToBottom() {
+		setTimeout(() => {
+			chatBox.scrollTop = chatBox.scrollHeight;
+		}, 100);
 	}
 });

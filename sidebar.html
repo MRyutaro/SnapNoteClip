@@ -29,13 +29,13 @@
 				flex-direction: column;
 				overflow-y: auto; /* メッセージが増えたときだけスクロール */
 				box-sizing: border-box;
-                max-height: calc(100vh - 56px); /* 画面の高さから入力エリア分を引く */
-                -ms-overflow-style: none; /* IE, Edge用 */
+				max-height: calc(100vh - 56px); /* 画面の高さから入力エリア分を引く */
+				-ms-overflow-style: none; /* IE, Edge用 */
 			}
 
-            #chat-box::-webkit-scrollbar {
-                display: none;
-            }
+			#chat-box::-webkit-scrollbar {
+				display: none;
+			}
 
 			.message {
 				background: #e0e0e0;
@@ -86,6 +86,13 @@
 
 			button:hover {
 				background: #0056b3;
+			}
+
+            /* 画像 */
+			.chat-image {
+				max-width: 100%;
+				height: auto;
+                background: transparent;
 			}
 		</style>
 	</head>
