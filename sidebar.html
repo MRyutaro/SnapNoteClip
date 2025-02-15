@@ -12,33 +12,36 @@
 				display: flex;
 				flex-direction: column;
 				font-family: Arial, sans-serif;
-                -ms-overflow-style: none; /* IE, Edge用 */
+				-ms-overflow-style: none; /* IE, Edge用 */
 			}
 
-            /* webkit-scrollbarでスクロールバーを非表示にする */
-            body::-webkit-scrollbar {
-                display: none;
-            }
+			/* webkit-scrollbarでスクロールバーを非表示にする */
+			body::-webkit-scrollbar {
+				display: none;
+			}
 
+			/* チャットエリア */
 			#chat-box {
 				flex: 1;
 				border: 1px solid #ddd;
 				padding: 10px;
 				background: white;
-				width: auto;
-				height: 50%;
+				width: 100%;
+				height: calc(100vh - 60px); /* 入力エリアの高さを引いた値 */
 				display: flex;
 				flex-direction: column;
+				overflow-y: auto; /* メッセージが増えたときだけスクロール */
+				box-sizing: border-box;
 			}
 
 			.message {
 				background: #e0e0e0;
-				/* padding: 8px; */
 				margin: 5px;
 				border-radius: 5px;
 				text-align: left;
 				width: fit-content;
-				word-wrap: break-word; /* 長いテキストの自動改行 */
+				word-wrap: break-word; /* チャット内で長い単語を折り返す */
+				max-width: 100%;
 			}
 
 			.my-message {
@@ -46,13 +49,21 @@
 				color: white;
 				text-align: right;
 				margin-left: auto;
-                padding: 8px;
+				padding: 8px;
 			}
 
+			/* 入力エリアを最下部＆横幅いっぱいに */
 			#input-container {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				width: 100vw; /* 横幅いっぱいに */
+				background: white;
+				padding: 10px;
 				display: flex;
 				gap: 5px;
-				margin-top: 10px;
+				border-top: 1px solid #ddd;
+				box-sizing: border-box;
 			}
 
 			#message-input {
@@ -60,6 +71,7 @@
 				padding: 8px;
 				border: 1px solid #ccc;
 				border-radius: 4px;
+				box-sizing: border-box;
 			}
 
 			button {
