@@ -52,6 +52,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		const imageElement = document.createElement("img");
 		imageElement.src = imageSrc;
 		imageElement.classList.add("chat-image");
+		imageElement.onclick = function () {
+			openImageInNewWindow(imageSrc);
+		};
 
 		const messageElement = document.createElement("div");
 		messageElement.classList.add("message", "image-message");
@@ -59,6 +62,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		chatBox.appendChild(messageElement);
 		scrollToBottom();
+	}
+
+	function openImageInNewWindow(imageSrc) {
+		const newWindow = window.open("", "_blank", "width=1200,height=900");
+		newWindow.document.write(`
+			<html>
+			<head>
+				<title>画像拡大表示</title>
+				<style>
+					body { display: flex; justify-content: center; align-items: center; height: 100vh; background: black; margin: 0; }
+					img { max-width: 90%; max-height: 90%; }
+				</style>
+			</head>
+			<body>
+				<img src="${imageSrc}" alt="拡大画像">
+			</body>
+			</html>
+		`);
+		newWindow.document.close();
 	}
 
 	function scrollToBottom() {
