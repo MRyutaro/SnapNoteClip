@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		// メッセージ要素作成
 		const messageElement = document.createElement("div");
-		messageElement.classList.add("message", "my-message");
+		messageElement.classList.add("message", "my-message", "text-message");
 		messageElement.textContent = messageText;
 
 		chatBox.appendChild(messageElement);
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		imageElement.classList.add("chat-image");
 
 		const messageElement = document.createElement("div");
-		messageElement.classList.add("message", "my-message");
+		messageElement.classList.add("message", "image-message"); // 背景なし＆余白なし用のクラス
 		messageElement.appendChild(imageElement);
 
 		chatBox.appendChild(messageElement);
