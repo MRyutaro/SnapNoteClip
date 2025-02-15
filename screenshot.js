@@ -48,36 +48,46 @@ try {
 			endY = e.clientY;
 			console.log("🖱 mouseup:", startX, startY, endX, endY);
 			isSelecting = false;
-		
-			// **赤枠を削除**
-			selectionDiv.remove();
-		
+
+			// **選択範囲が小さすぎる場合は無視**
 			if (Math.abs(endX - startX) < 5 || Math.abs(endY - startY) < 5) {
 				console.log("⚠️ 選択範囲が小さすぎるためスクショを撮りません！");
 				cleanupScreenshotSelection();
 				return;
 			}
-		
-			// **devicePixelRatio を考慮**
-			const dpr = window.devicePixelRatio || 1;
-			const coords = { 
-				x: startX * dpr, 
-				y: startY * dpr, 
-				width: (endX - startX) * dpr, 
-				height: (endY - startY) * dpr 
-			};
-		
-			console.log("📸 スクリーンショットを撮影します！座標:", coords);
-		
-			// **スクリーンショットをストレージに保存**
-			chrome.runtime.sendMessage({
-				action: "capture_screenshot",
-				coords: coords
-			});
-		
-			cleanupScreenshotSelection();
+
+			// **スクリーンショット前に赤枠を確実に削除**
+			if (selectionDiv) {
+				selectionDiv.remove();
+				console.log("🟥 赤枠を削除しました");
+			}
+			// **少し遅らせてスクリーンショットを撮る**
+			setTimeout(() => {
+				const dpr = window.devicePixelRatio || 1;
+				const coords = { 
+					x: startX * dpr, 
+					y: startY * dpr, 
+					width: (endX - startX) * dpr, 
+					height: (endY - startY) * dpr 
+				};
+
+				console.log("📸 スクリーンショットを撮影します！座標:", coords);
+
+				// **スクリーンショットをストレージに保存**
+				chrome.runtime.sendMessage({
+					action: "capture_screenshot",
+					coords: coords
+				});
+
+				// **選択解除**
+				document.body.style.userSelect = "";
+				if (window.getSelection) {
+					window.getSelection().removeAllRanges();
+				}
+
+				cleanupScreenshotSelection();
+			}, 10);  // **10ms遅延**
 		}
-		
 
 		function cleanupScreenshotSelection() {
 			document.removeEventListener("mousedown", handleMouseDown);
