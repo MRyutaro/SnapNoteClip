@@ -20,7 +20,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		messageElement.textContent = messageText;
 
 		chatBox.appendChild(messageElement);
-		chatBox.scrollTop = chatBox.scrollHeight; // スクロールを下に移動
+
+		// 最新のメッセージを常に表示
+		setTimeout(() => {
+			messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
+		}, 100);
 
 		messageInput.value = "";
 	}
