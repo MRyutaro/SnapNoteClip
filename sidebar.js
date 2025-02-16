@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (message.type === "text") {
 				addTextToChat(message.content, index, message.timestamp, message.isInitial);
 			} else if (message.type === "image") {
-				addImageToChat(message.content, index, message.timestamp);
+				addImageToChat(message.content, index, message.timestamp, message.tabId, message.url);
 			}
 		});
 	}
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		}, 100);
 	}
 
-	function displayScreenshot() {
+	function displayScreenshot(tabId, url) {
 		chrome.storage.local.get(["screenshot"], (data) => {
 			if (!data.screenshot) {
 				console.log("❌ スクリーンショットデータが見つかりません");
@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 
 			const timestamp = getCurrentTimestamp();
-			const messageIndex = saveMessage({ type: "image", content: data.screenshot, timestamp: timestamp });
-			addImageToChat(data.screenshot, messageIndex, timestamp);
+			const messageIndex = saveMessage({ type: "image", content: data.screenshot, timestamp, tabId, url });
+			addImageToChat(data.screenshot, messageIndex, timestamp, tabId, url);
 		});
 	}
 
@@ -98,34 +98,66 @@ document.addEventListener("DOMContentLoaded", function () {
 	chrome.storage.onChanged.addListener((changes, namespace) => {
 		if (changes.screenshot) {
 			console.log("🔄 スクリーンショットが更新されました！");
-			displayScreenshot();
+			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+				if (!tabs || tabs.length === 0) {
+					console.error("⚠️ アクティブなタブが見つかりません！");
+					return;
+				}
+				displayScreenshot(tabs[0].id, tabs[0].url);
+			});
 		}
 	});
 
-	function addImageToChat(imageSrc, index, timestamp) {
-		const messageWrapper = document.createElement("div");
-		messageWrapper.classList.add("message-wrapper");
+	function addImageToChat(imageSrc, index, timestamp, tabId, url) {
+    const messageWrapper = document.createElement("div");
+    messageWrapper.classList.add("message-wrapper");
+    messageWrapper.id = "tab-" + tabId; // 初期のtabIdを設定
 
-		const messageElement = document.createElement("div");
-		messageElement.classList.add("message", "image-message");
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message", "image-message");
 
-		const imageElement = document.createElement("img");
-		imageElement.src = imageSrc;
-		imageElement.classList.add("chat-image");
-		imageElement.onclick = function () {
-			openImageInNewWindow(imageSrc);
-		};
+    const imageElement = document.createElement("img");
+    imageElement.src = imageSrc;
+    imageElement.classList.add("chat-image");
+    // imageElement.onclick = function () {
+    //     openImageInNewWindow(imageSrc);
+    // };
 
-		const timeElement = createTimestampElement(timestamp);
-		const buttonContainer = createButtonContainer(index, imageSrc, true, false);
+    const timeElement = createTimestampElement(timestamp);
+    const deleteButton = createDeleteButton(index, true, false);
 
-		messageElement.appendChild(imageElement);
-		messageWrapper.appendChild(messageElement);
-		messageWrapper.appendChild(timeElement);
-		messageWrapper.appendChild(buttonContainer);
+    messageElement.appendChild(imageElement);
+    messageWrapper.appendChild(messageElement);
+    messageWrapper.appendChild(timeElement);
+    messageWrapper.appendChild(deleteButton);
 
-		chatBox.appendChild(messageWrapper);
-		scrollToBottom();
+    chatBox.appendChild(messageWrapper);
+    scrollToBottom();
+
+    // タブを開く or アクティブ化する処理
+    imageElement.onclick = function () {
+			if (tabId) {
+				// タブが存在するかチェック
+				chrome.tabs.get(tabId, function (tab) {
+					if (chrome.runtime.lastError || !tab) {
+						// タブが閉じていた場合、新しく開く
+						chrome.tabs.create({ url }, function (newTab) {
+							tabId = newTab.id; // 新しいタブIDを更新
+							messageWrapper.id = "tab-" + tabId; // IDも更新
+						});
+					} else {
+						// 既存のタブをアクティブにする
+						chrome.tabs.update(tabId, { active: true });
+					}
+				});
+			} else {
+				// tabIdがない場合、新しく開く
+				chrome.tabs.create({ url }, function (newTab) {
+					tabId = newTab.id; // 新しいタブIDを更新
+					messageWrapper.id = "tab-" + tabId; // IDも更新
+				});
+			}
+    };
 	}
 
 	function getCurrentTimestamp() {
