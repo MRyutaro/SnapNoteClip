@@ -28,10 +28,10 @@
 				width: 100%;
 				display: flex;
 				flex-direction: column;
-				overflow-y: auto; /* メッセージが増えたときだけスクロール */
+				overflow-y: auto;
 				box-sizing: border-box;
-				max-height: calc(100vh - 56px); /* 画面の高さから入力エリア分を引く */
-				-ms-overflow-style: none; /* IE, Edge用 */
+				max-height: calc(100vh - 56px);
+				-ms-overflow-style: none;
 			}
 
 			#chat-box::-webkit-scrollbar {
@@ -44,9 +44,9 @@
 				border-radius: 5px;
 				text-align: left;
 				width: fit-content;
-				word-wrap: break-word; /* チャット内で長い単語を折り返す */
+				word-wrap: break-word;
 				max-width: 100%;
-				white-space: pre-wrap; /* テキスト内の改行を反映 */
+				white-space: pre-wrap;
 			}
 
 			.my-message {
@@ -57,12 +57,12 @@
 				padding: 8px;
 			}
 
-			/* 入力エリアを最下部＆横幅いっぱいに */
+			/* 入力エリア */
 			#input-container {
 				position: fixed;
 				bottom: 0;
 				left: 0;
-				width: 100vw; /* 横幅いっぱいに */
+				width: 100vw;
 				padding: 10px;
 				display: flex;
 				gap: 5px;
@@ -112,70 +112,75 @@
 
 			/* メッセージ全体を包むラッパー */
 			.message-wrapper {
-				position: relative;
-				display: inline-block; /* メッセージサイズに合わせる */
-				/* padding-top: 8px; */
-				/* border-radius: 5px; */
-				/* background: #e0e0e0; */
-				margin-top: 20px;
-				word-wrap: break-word;
-				/* max-width: 90%; */
-				word-wrap: break-word; /* 長い単語を折り返す */
-				overflow-wrap: break-word; /* 他のブラウザ向け */
-				word-break: break-word; /* 単語の途中でも折り返す */
-				white-space: pre-wrap; /* 改行を保持しつつ折り返す */
-			}
+            position: relative;
+            display: inline-block;
+            margin-top: 20px;
+            max-width: 90%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
 
-			/* 削除ボタン（完全な円形） */
-			.delete-btn {
-				position: absolute;
-				top: 0px;
-				right: -8px;
-				width: 22px;
-				height: 22px;
-				background-color: rgba(211, 211, 211, 0.9);
-				border: none;
-				border-radius: 50%;
-				display: none;
-				align-items: center;
-				justify-content: center;
-				cursor: pointer;
-				box-sizing: border-box;
-				padding: 0;
-				transition: background-color 0.2s ease-in-out;
-				z-index: 2; /* 他の要素より前に */
-			}
+        /* 削除・拡大ボタンのコンテナ */
+        .button-container {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            display: flex;
+            gap: 12px; /* ボタン間のスペースを確保 */
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
 
-			/* 削除ボタンの「×」を中央に配置 */
-			.delete-btn::before {
-				content: "×";
-				font-size: 14px;
-				color: black;
-				font-weight: bold;
-				text-align: center;
-				display: block;
-			}
+        /* メッセージをホバーしたときにボタンを表示 */
+        .message-wrapper:hover .button-container {
+            opacity: 1;
+        }
 
-			/* メッセージをホバーしたときだけ削除ボタンを表示 */
-			.message-wrapper:hover .delete-btn {
-				display: flex;
-			}
+        /* 削除ボタン（×）と拡大ボタン（🔍） */
+        .delete-btn,
+        .expand-btn {
+            width: 26px;
+            height: 26px;
+            background-color: #d3d3d3;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease-in-out;
+        }
 
-			/* 削除ボタンのホバー時 */
-			.delete-btn:hover {
-				background-color: rgba(169, 169, 169, 0.9);
-			}
+        /* 削除ボタン（×）のスタイル */
+        .delete-btn::before {
+            content: "×";
+            font-size: 14px;
+            color: black;
+            font-weight: bold;
+        }
 
-			/* 日時を右下に配置 */
-			.timestamp {
-				position: absolute;
-				bottom: -15px; /* メッセージのすぐ下 */
-				right: 0;
-				font-size: 12px;
-				color: rgba(0, 0, 0, 0.6);
-				white-space: nowrap;
-				z-index: 1;
-			}
+        /* 拡大ボタン（🔍）のスタイル */
+        .expand-btn::before {
+            content: "🔍";
+            font-size: 14px;
+        }
+
+        /* 削除ボタン・拡大ボタンのホバー時 */
+        .delete-btn:hover, .expand-btn:hover {
+            background-color: #a9a9a9;
+        }
+
+        /* 日時を右下に配置 */
+        .timestamp {
+            position: absolute;
+            bottom: -15px;
+            right: 0;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.6);
+            white-space: nowrap;
+        }
 		</style>
 	</head>
 	<body>
