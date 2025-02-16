@@ -64,11 +64,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		messageElement.textContent = text;
 
 		const timeElement = createTimestampElement(timestamp);
-		const deleteButton = createDeleteButton(index, false, isInitial);
+		const buttonContainer = createButtonContainer(index, null, false, isInitial);
 
 		messageWrapper.appendChild(messageElement);
 		messageWrapper.appendChild(timeElement);
-		messageWrapper.appendChild(deleteButton);
+		messageWrapper.appendChild(buttonContainer);
 
 		chatBox.appendChild(messageWrapper);
 		scrollToBottom();
@@ -160,8 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 	}
 
-
-
 	function getCurrentTimestamp() {
 		const now = new Date();
 		return now.toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -174,26 +172,50 @@ document.addEventListener("DOMContentLoaded", function () {
 		return timeElement;
 	}
 
-	function createDeleteButton(index, isImage = false, isInitial = false) {
-		// isInitialがtrueの場合、削除ボタンを作成しない
+	function createButtonContainer(index, imageSrc, isImage = false, isInitial = false) {
 		if (isInitial) {
-			return document.createElement("span"); // 空の要素を返す
+			return document.createElement("span"); // 初期メッセージならボタンを作成しない
 		}
 
+		const buttonContainer = document.createElement("div");
+		buttonContainer.classList.add("button-container");
+
+		// 削除ボタン
 		const deleteButton = document.createElement("button");
 		deleteButton.classList.add("delete-btn");
-
 		deleteButton.addEventListener("click", function () {
 			deleteMessage(index, isImage);
 		});
 
-		return deleteButton;
+		// 拡大ボタン（画像の場合のみ）
+		if (isImage) {
+			const expandButton = document.createElement("button");
+			expandButton.classList.add("expand-btn");
+			expandButton.addEventListener("click", function (event) {
+				event.stopPropagation();
+				openImageInNewWindow(imageSrc);
+			});
+
+			buttonContainer.appendChild(expandButton);
+		}
+
+		buttonContainer.appendChild(deleteButton);
+		return buttonContainer;
 	}
 
 	function deleteMessage(index, isImage = false) {
 		let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
 
 		if (index >= 0 && index < messages.length) {
+			const deletedMessage = messages[index];
+
+			// 画像の場合は `chrome.storage.local` からも削除
+			if (isImage && deletedMessage.type === "image") {
+				chrome.storage.local.remove("screenshot", () => {
+					console.log("🗑️ スクリーンショットを `chrome.storage.local` から削除しました");
+				});
+			}
+
 			messages.splice(index, 1);
 			localStorage.setItem("chatMessages", JSON.stringify(messages));
 			reloadChat();
@@ -211,13 +233,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			<html>
 			<head>
 				<title>画像拡大表示</title>
-				<style>
-					body { display: flex; justify-content: center; align-items: center; height: 100vh; background: black; margin: 0; }
-					img { max-width: 90%; max-height: 90%; }
-				</style>
 			</head>
 			<body>
-				<img src="${imageSrc}" alt="拡大画像">
+				<img src="${imageSrc}" alt="拡大画像" style="max-width: 100%; max-height: 100vh;">
 			</body>
 			</html>
 		`);
