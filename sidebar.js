@@ -1,118 +1,100 @@
 document.addEventListener("DOMContentLoaded", function () {
-	const sendButton = document.getElementById("send-btn");
-	const messageInput = document.getElementById("message-input");
-	const chatBox = document.getElementById("chat-box");
+    const sendButton = document.getElementById("send-btn");
+    const messageInput = document.getElementById("message-input");
+    const chatBox = document.getElementById("chat-box");
 
-	// 初期メッセージ（説明文）を複数登録
-	const INITIAL_MESSAGES = [
-		{ type: "text", content: "Windowsなら Ctrl + Alt + S,", isInitial: true },
-		{ type: "text", content: "Macなら Command + Shift + S でスクリーンショットを撮影できます。", isInitial: true },
-		{ type: "text", content: "このチャットでスクリーンショットを保存して、後で参照できます。", isInitial: true },
-	];
+    const INITIAL_MESSAGES = [
+        { type: "text", content: "Windowsなら Ctrl + Alt + S,", isInitial: true },
+        { type: "text", content: "Macなら Command + Shift + S でスクリーンショットを撮影できます。", isInitial: true },
+        { type: "text", content: "このチャットでスクリーンショットを保存して、後で参照できます。", isInitial: true },
+    ];
 
-	// 保存されたメッセージを復元
-	loadMessages();
+    loadMessages();
 
-	sendButton.addEventListener("click", sendMessage);
-	messageInput.addEventListener("keypress", function (event) {
-		if (event.key === "Enter") {
-			sendMessage();
-		}
-	});
+    sendButton.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
 
-	// `localStorage` からメッセージを復元（初期メッセージ対応）
-	function loadMessages() {
-		let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    function loadMessages() {
+        let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
 
-		// 初期メッセージがすでに含まれているかチェック
-		const hasInitialMessages = messages.some((msg) => msg.isInitial);
+        const hasInitialMessages = messages.some((msg) => msg.isInitial);
+        if (!hasInitialMessages) {
+            messages = [...INITIAL_MESSAGES, ...messages];
+            localStorage.setItem("chatMessages", JSON.stringify(messages));
+        }
 
-		// 初期メッセージが未登録なら追加
-		if (!hasInitialMessages) {
-			messages = [...INITIAL_MESSAGES, ...messages];
-			localStorage.setItem("chatMessages", JSON.stringify(messages));
-		}
+        chatBox.innerHTML = "";
+        messages.forEach((message, index) => {
+            if (message.type === "text") {
+                addTextToChat(message.content, index, message.timestamp, message.isInitial);
+            } else if (message.type === "image") {
+                addImageToChat(message.content, index, message.timestamp);
+            }
+        });
+    }
 
-		// チャットボックスにメッセージを表示
-		messages.forEach((message) => {
-			if (message.type === "text") {
-				addTextToChat(message.content);
-			} else if (message.type === "image") {
-				addImageToChat(message.content);
-			}
-		});
-	}
+    function sendMessage() {
+        const messageText = messageInput.value.trim();
+        if (messageText === "") return;
 
-	function sendMessage() {
-		const messageText = messageInput.value.trim();
-		if (messageText === "") return;
+        const timestamp = getCurrentTimestamp();
+        const messageIndex = saveMessage({ type: "text", content: messageText, timestamp: timestamp });
+        addTextToChat(messageText, messageIndex, timestamp, false);
 
-		addTextToChat(messageText);
-		saveMessage({ type: "text", content: messageText });
+        messageInput.value = "";
+    }
 
-		messageInput.value = "";
-	}
+    function saveMessage(message) {
+        let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+        messages.push(message);
+        localStorage.setItem("chatMessages", JSON.stringify(messages));
+        return messages.length - 1;
+    }
 
-	// メッセージを `localStorage` に保存
-	function saveMessage(message) {
-		let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-		messages.push(message);
-		localStorage.setItem("chatMessages", JSON.stringify(messages));
-	}
+    function addTextToChat(text, index, timestamp, isInitial = false) {
+        const messageWrapper = document.createElement("div");
+        messageWrapper.classList.add("message-wrapper");
 
-	// メッセージをチャットボックスに追加（改行対応）
-	function addTextToChat(text) {
-		const messageElement = document.createElement("div");
-		messageElement.classList.add("message", "my-message", "text-message");
-		messageElement.textContent = text;
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "my-message", "text-message");
+        messageElement.textContent = text;
 
-		chatBox.appendChild(messageElement);
-		scrollToBottom();
-	}
+        const timeElement = createTimestampElement(timestamp);
+        const deleteButton = createDeleteButton(index);
 
-	function scrollToBottom() {
-		setTimeout(() => {
-			chatBox.scrollTop = chatBox.scrollHeight;
-		}, 100);
-	}
+        messageWrapper.appendChild(messageElement);
+        messageWrapper.appendChild(timeElement);
+        messageWrapper.appendChild(deleteButton);
 
-	// 画像をクリップボードから貼り付ける
-	document.addEventListener("paste", function (event) {
-		const items = event.clipboardData.items;
-		for (let item of items) {
-			if (item.type.startsWith("image/")) {
-				const blob = item.getAsFile();
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					addImageToChat(e.target.result);
-					saveMessage({ type: "image", content: e.target.result });
-				};
-				reader.readAsDataURL(blob);
-			}
-		}
-	});
+        chatBox.appendChild(messageWrapper);
+        scrollToBottom();
+    }
 
-	function displayScreenshot() {
-        chrome.storage.local.get(["screenshot", "coords"], (data) => {
-            console.log("📂 取得したストレージデータ:", data);
+    function scrollToBottom() {
+        setTimeout(() => {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 100);
+    }
+
+    function displayScreenshot() {
+        chrome.storage.local.get(["screenshot"], (data) => {
             if (!data.screenshot) {
                 console.log("❌ スクリーンショットデータが見つかりません");
                 return;
             }
 
-            let imgElement = document.createElement("img");
-            imgElement.src = data.screenshot;
-            imgElement.classList.add("chat-image");
-
-            chatBox.appendChild(imgElement);
-            console.log("✅ スクリーンショットがスライドバーに表示されました！");
+            const timestamp = getCurrentTimestamp();
+            const messageIndex = saveMessage({ type: "image", content: data.screenshot, timestamp: timestamp });
+            addImageToChat(data.screenshot, messageIndex, timestamp);
         });
     }
 
-    // **スライドバーを開いた時にストレージからスクショを取得**
     displayScreenshot();
 
-    // **ストレージが更新されたらリアルタイムでスクショを表示**
     chrome.storage.onChanged.addListener((changes, namespace) => {
         if (changes.screenshot) {
             console.log("🔄 スクリーンショットが更新されました！");
@@ -120,61 +102,67 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-	// **スクリーンショットを取得してチャットに追加**
-	// chrome.storage.onChanged.addListener((changes, namespace) => {
-	// 	console.log("🔄 `chrome.storage.onChanged` が発火:", changes);
-	// 	if (changes.screenshot) {
-	// 		console.log("📸 スクリーンショットが保存されました");
-	// 		pasteScreenshotAsImage();
-	// 	}
-	// });
+    function addImageToChat(imageSrc, index, timestamp) {
+        const messageWrapper = document.createElement("div");
+        messageWrapper.classList.add("message-wrapper");
 
-	// **スクリーンショットをチャットに表示**
-	// function pasteScreenshotAsImage() {
-	// 	chrome.storage.local.get(["screenshot"], (data) => {
-	// 		if (data.screenshot) {
-	// 			console.log("📸 スクリーンショットをチャットに追加");
-	// 			addImageToChat(data.screenshot);
-	// 			saveMessage({ type: "image", content: data.screenshot });
-	// 		} else {
-	// 			console.log("❌ スクリーンショットデータが見つかりません");
-	// 		}
-	// 	});
-	// }
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "image-message");
 
-	// **画像をチャットボックスに追加**
-	function addImageToChat(imageSrc) {
-		const imageElement = document.createElement("img");
-		imageElement.src = imageSrc;
-		imageElement.classList.add("chat-image");
-		imageElement.onclick = function () {
-			openImageInNewWindow(imageSrc);
-		};
+        const imageElement = document.createElement("img");
+        imageElement.src = imageSrc;
+        imageElement.classList.add("chat-image");
+        imageElement.onclick = function () {
+            openImageInNewWindow(imageSrc);
+        };
 
-		const messageElement = document.createElement("div");
-		messageElement.classList.add("message", "image-message");
-		messageElement.appendChild(imageElement);
+        const timeElement = createTimestampElement(timestamp);
+        const deleteButton = createDeleteButton(index, true);
 
-		chatBox.appendChild(messageElement);
-		scrollToBottom();
-	}
+        messageElement.appendChild(imageElement);
+        messageWrapper.appendChild(messageElement);
+        messageWrapper.appendChild(timeElement);
+        messageWrapper.appendChild(deleteButton);
 
-	function openImageInNewWindow(imageSrc) {
-		const newWindow = window.open("", "_blank", "width=1200,height=900");
-		newWindow.document.write(`
-			<html>
-			<head>
-				<title>画像拡大表示</title>
-				<style>
-					body { display: flex; justify-content: center; align-items: center; height: 100vh; background: black; margin: 0; }
-					img { max-width: 90%; max-height: 90%; }
-				</style>
-			</head>
-			<body>
-				<img src="${imageSrc}" alt="拡大画像">
-			</body>
-			</html>
-		`);
-		newWindow.document.close();
-	}
+        chatBox.appendChild(messageWrapper);
+        scrollToBottom();
+    }
+
+    function getCurrentTimestamp() {
+        const now = new Date();
+        return now.toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function createTimestampElement(timestamp) {
+        const timeElement = document.createElement("div");
+        timeElement.classList.add("timestamp");
+        timeElement.textContent = timestamp;
+        return timeElement;
+    }
+
+    function createDeleteButton(index, isImage = false) {
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("delete-btn");
+
+        deleteButton.addEventListener("click", function () {
+            deleteMessage(index, isImage);
+        });
+
+        return deleteButton;
+    }
+
+    function deleteMessage(index, isImage = false) {
+        let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+
+        if (index >= 0 && index < messages.length) {
+            messages.splice(index, 1);
+            localStorage.setItem("chatMessages", JSON.stringify(messages));
+            reloadChat();
+        }
+    }
+
+    function reloadChat() {
+        chatBox.innerHTML = "";
+        loadMessages();
+    }
 });
