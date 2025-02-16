@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		}, 100);
 	}
 
-	function displayScreenshot() {
+	function displayScreenshot(tabId) {
 		chrome.storage.local.get(["screenshot"], (data) => {
 			if (!data.screenshot) {
 				console.log("❌ スクリーンショットデータが見つかりません");
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			const timestamp = getCurrentTimestamp();
 			const messageIndex = saveMessage({ type: "image", content: data.screenshot, timestamp: timestamp });
-			addImageToChat(data.screenshot, messageIndex, timestamp);
+			addImageToChat(data.screenshot, messageIndex, timestamp, tabId);
 		});
 	}
 
@@ -98,35 +98,52 @@ document.addEventListener("DOMContentLoaded", function () {
 	chrome.storage.onChanged.addListener((changes, namespace) => {
 		if (changes.screenshot) {
 			console.log("🔄 スクリーンショットが更新されました！");
-			displayScreenshot();
+			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+				if (!tabs || tabs.length === 0) {
+					console.error("⚠️ アクティブなタブが見つかりません！");
+					return;
+				}
+				displayScreenshot(tabs[0].id);
+			});
 		}
 	});
 
-	function addImageToChat(imageSrc, index, timestamp) {
-		const messageWrapper = document.createElement("div");
-		messageWrapper.classList.add("message-wrapper");
+	function addImageToChat(imageSrc, index, timestamp, tabId) {
+    const messageWrapper = document.createElement("div");
+    messageWrapper.classList.add("message-wrapper");
+    messageWrapper.id = "tab-" + tabId; // tabIdをidに設定
 
-		const messageElement = document.createElement("div");
-		messageElement.classList.add("message", "image-message");
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message", "image-message");
 
-		const imageElement = document.createElement("img");
-		imageElement.src = imageSrc;
-		imageElement.classList.add("chat-image");
-		imageElement.onclick = function () {
-			openImageInNewWindow(imageSrc);
-		};
+    const imageElement = document.createElement("img");
+    imageElement.src = imageSrc;
+    imageElement.classList.add("chat-image");
+    // imageElement.onclick = function () {
+    //     openImageInNewWindow(imageSrc);
+    // };
 
-		const timeElement = createTimestampElement(timestamp);
-		const deleteButton = createDeleteButton(index, true, false);
+    const timeElement = createTimestampElement(timestamp);
+    const deleteButton = createDeleteButton(index, true, false);
 
-		messageElement.appendChild(imageElement);
-		messageWrapper.appendChild(messageElement);
-		messageWrapper.appendChild(timeElement);
-		messageWrapper.appendChild(deleteButton);
+    messageElement.appendChild(imageElement);
+    messageWrapper.appendChild(messageElement);
+    messageWrapper.appendChild(timeElement);
+    messageWrapper.appendChild(deleteButton);
 
-		chatBox.appendChild(messageWrapper);
-		scrollToBottom();
+    chatBox.appendChild(messageWrapper);
+    scrollToBottom();
+
+		console.log(tabId)
+    // messageWrapperがクリックされたら該当のタブを開く
+    imageElement.onclick = function () {
+			if (tabId) {
+				console.log(`click ${tabId}`)
+				chrome.tabs.update(tabId, { active: true });
+			}
+    };
 	}
+
 
 	function getCurrentTimestamp() {
 		const now = new Date();
