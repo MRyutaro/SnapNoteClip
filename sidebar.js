@@ -109,33 +109,34 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	function addImageToChat(imageSrc, index, timestamp, tabId, url) {
-    const messageWrapper = document.createElement("div");
-    messageWrapper.classList.add("message-wrapper");
-    messageWrapper.id = "tab-" + tabId; // 初期のtabIdを設定
+		const messageWrapper = document.createElement("div");
+		messageWrapper.classList.add("message-wrapper");
+		messageWrapper.id = "tab-" + tabId; // 初期のtabIdを設定
 
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("message", "image-message");
+		const messageElement = document.createElement("div");
+		messageElement.classList.add("message", "image-message");
 
-    const imageElement = document.createElement("img");
-    imageElement.src = imageSrc;
-    imageElement.classList.add("chat-image");
-    // imageElement.onclick = function () {
-    //     openImageInNewWindow(imageSrc);
-    // };
+		const imageElement = document.createElement("img");
+		imageElement.src = imageSrc;
+		imageElement.classList.add("chat-image");
+		// imageElement.onclick = function () {
+		//     openImageInNewWindow(imageSrc);
+		// };
 
-    const timeElement = createTimestampElement(timestamp);
-    const deleteButton = createDeleteButton(index, true, false);
+		const timeElement = createTimestampElement(timestamp);
+		const buttonContainer = createButtonContainer(index, imageSrc, true, false);
 
-    messageElement.appendChild(imageElement);
-    messageWrapper.appendChild(messageElement);
-    messageWrapper.appendChild(timeElement);
-    messageWrapper.appendChild(deleteButton);
 
-    chatBox.appendChild(messageWrapper);
-    scrollToBottom();
+		messageElement.appendChild(imageElement);
+		messageWrapper.appendChild(messageElement);
+		messageWrapper.appendChild(timeElement);
+		messageWrapper.appendChild(buttonContainer);
 
-    // タブを開く or アクティブ化する処理
-    imageElement.onclick = function () {
+		chatBox.appendChild(messageWrapper);
+		scrollToBottom();
+
+		// タブを開く or アクティブ化する処理
+		imageElement.onclick = function () {
 			if (tabId) {
 				// タブが存在するかチェック
 				chrome.tabs.get(tabId, function (tab) {
@@ -157,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					messageWrapper.id = "tab-" + tabId; // IDも更新
 				});
 			}
-    };
+		};
 	}
 
 	function getCurrentTimestamp() {
