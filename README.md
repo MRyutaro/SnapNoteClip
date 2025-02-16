@@ -8,11 +8,16 @@
 
 ## 使い方
 
-
 ## Collaborator
 
 <p align="left">
-  <img src="/docs/images/ryutaro.JPG" alt="Ryutaro" height="100">
-  <img src="/docs/images/naoto.JPG" alt="Naoto" height="100">
-  <img src="/docs/images/riku.png" alt="Riku" height="100">
+  <a href="https://github.com/MRyutaro" target="_blank">
+    <img src="/docs/images/ryutaro.JPG" alt="Ryutaro" height="80">
+  </a>
+  <a href="https://github.com/Naoto-Araki" target="_blank">
+    <img src="/docs/images/naoto.JPG" alt="Naoto" height="80">
+  </a>
+  <a href="https://github.com/haku-noir" target="_blank">
+    <img src="/docs/images/riku.png" alt="Riku" height="80">
+  </a>
 </p>
