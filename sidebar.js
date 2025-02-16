@@ -3,14 +3,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	const messageInput = document.getElementById("message-input");
 	const chatBox = document.getElementById("chat-box");
 
-	// 初期メッセージ（説明文）を複数登録
+	// **初期メッセージ（削除ボタンなし）**
 	const INITIAL_MESSAGES = [
 		{ type: "text", content: "Windowsなら Ctrl + Alt + S,", isInitial: true },
 		{ type: "text", content: "Macなら Command + Shift + S でスクリーンショットを撮影できます。", isInitial: true },
 		{ type: "text", content: "このチャットでスクリーンショットを保存して、後で参照できます。", isInitial: true },
 	];
 
-	// 保存されたメッセージを復元
+	// **保存されたメッセージを復元**
 	loadMessages();
 
 	sendButton.addEventListener("click", sendMessage);
@@ -20,25 +20,23 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-	// `localStorage` からメッセージを復元（初期メッセージ対応）
+	// **メッセージを復元（初期メッセージ対応）**
 	function loadMessages() {
 		let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
 
-		// 初期メッセージがすでに含まれているかチェック
+		// **初期メッセージが未登録なら追加**
 		const hasInitialMessages = messages.some((msg) => msg.isInitial);
-
-		// 初期メッセージが未登録なら追加
 		if (!hasInitialMessages) {
 			messages = [...INITIAL_MESSAGES, ...messages];
 			localStorage.setItem("chatMessages", JSON.stringify(messages));
 		}
 
-		// チャットボックスにメッセージを表示
-		messages.forEach((message) => {
+		// **メッセージを表示**
+		messages.forEach((message, index) => {
 			if (message.type === "text") {
-				addTextToChat(message.content);
+				addTextToChat(message.content, index, message.isInitial);
 			} else if (message.type === "image") {
-				addImageToChat(message.content);
+				addImageToChat(message.content, index);
 			}
 		});
 	}
@@ -47,103 +45,70 @@ document.addEventListener("DOMContentLoaded", function () {
 		const messageText = messageInput.value.trim();
 		if (messageText === "") return;
 
-		addTextToChat(messageText);
-		saveMessage({ type: "text", content: messageText });
+		const messageIndex = saveMessage({ type: "text", content: messageText });
+		addTextToChat(messageText, messageIndex, false);
 
 		messageInput.value = "";
 	}
 
-	// メッセージを `localStorage` に保存
+	// **メッセージを保存**
 	function saveMessage(message) {
 		let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
 		messages.push(message);
 		localStorage.setItem("chatMessages", JSON.stringify(messages));
+		return messages.length - 1;
 	}
 
-	// メッセージをチャットボックスに追加（改行対応）
-	function addTextToChat(text) {
+	// **テキストメッセージをチャットに追加（初期メッセージか判定）**
+	function addTextToChat(text, index, isInitial = false) {
 		const messageElement = document.createElement("div");
 		messageElement.classList.add("message", "my-message", "text-message");
 		messageElement.textContent = text;
+		messageElement.style.position = "relative"; 
+
+		// **初期メッセージでなければ削除ボタンを追加**
+		if (!isInitial) {
+			const deleteButton = createDeleteButton(index);
+			messageElement.appendChild(deleteButton);
+		}
 
 		chatBox.appendChild(messageElement);
 		scrollToBottom();
 	}
 
+	// **スクロールを最下部へ**
 	function scrollToBottom() {
 		setTimeout(() => {
 			chatBox.scrollTop = chatBox.scrollHeight;
 		}, 100);
 	}
 
-	// 画像をクリップボードから貼り付ける
-	document.addEventListener("paste", function (event) {
-		const items = event.clipboardData.items;
-		for (let item of items) {
-			if (item.type.startsWith("image/")) {
-				const blob = item.getAsFile();
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					addImageToChat(e.target.result);
-					saveMessage({ type: "image", content: e.target.result });
-				};
-				reader.readAsDataURL(blob);
+	// **スクリーンショットを表示**
+	function displayScreenshot() {
+		chrome.storage.local.get(["screenshot"], (data) => {
+			if (!data.screenshot) {
+				console.log("❌ スクリーンショットデータが見つかりません");
+				return;
 			}
+
+			const messageIndex = saveMessage({ type: "image", content: data.screenshot });
+			addImageToChat(data.screenshot, messageIndex);
+		});
+	}
+
+	// **スライドバーを開いた時にストレージからスクショを取得**
+	displayScreenshot();
+
+	// **ストレージが更新されたらスクショを追加**
+	chrome.storage.onChanged.addListener((changes, namespace) => {
+		if (changes.screenshot) {
+			console.log("🔄 スクリーンショットが更新されました！");
+			displayScreenshot();
 		}
 	});
 
-	function displayScreenshot() {
-        chrome.storage.local.get(["screenshot", "coords"], (data) => {
-            console.log("📂 取得したストレージデータ:", data);
-            if (!data.screenshot) {
-                console.log("❌ スクリーンショットデータが見つかりません");
-                return;
-            }
-
-            let imgElement = document.createElement("img");
-            imgElement.src = data.screenshot;
-            imgElement.classList.add("chat-image");
-
-            chatBox.appendChild(imgElement);
-            console.log("✅ スクリーンショットがスライドバーに表示されました！");
-        });
-    }
-
-    // **スライドバーを開いた時にストレージからスクショを取得**
-    displayScreenshot();
-
-    // **ストレージが更新されたらリアルタイムでスクショを表示**
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (changes.screenshot) {
-            console.log("🔄 スクリーンショットが更新されました！");
-            displayScreenshot();
-        }
-    });
-
-	// **スクリーンショットを取得してチャットに追加**
-	// chrome.storage.onChanged.addListener((changes, namespace) => {
-	// 	console.log("🔄 `chrome.storage.onChanged` が発火:", changes);
-	// 	if (changes.screenshot) {
-	// 		console.log("📸 スクリーンショットが保存されました");
-	// 		pasteScreenshotAsImage();
-	// 	}
-	// });
-
-	// **スクリーンショットをチャットに表示**
-	// function pasteScreenshotAsImage() {
-	// 	chrome.storage.local.get(["screenshot"], (data) => {
-	// 		if (data.screenshot) {
-	// 			console.log("📸 スクリーンショットをチャットに追加");
-	// 			addImageToChat(data.screenshot);
-	// 			saveMessage({ type: "image", content: data.screenshot });
-	// 		} else {
-	// 			console.log("❌ スクリーンショットデータが見つかりません");
-	// 		}
-	// 	});
-	// }
-
 	// **画像をチャットボックスに追加**
-	function addImageToChat(imageSrc) {
+	function addImageToChat(imageSrc, index) {
 		const imageElement = document.createElement("img");
 		imageElement.src = imageSrc;
 		imageElement.classList.add("chat-image");
@@ -153,12 +118,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		const messageElement = document.createElement("div");
 		messageElement.classList.add("message", "image-message");
+		messageElement.style.position = "relative";
+
+		// **削除ボタン追加**
+		const deleteButton = createDeleteButton(index, true);
+		messageElement.appendChild(deleteButton);
 		messageElement.appendChild(imageElement);
 
 		chatBox.appendChild(messageElement);
 		scrollToBottom();
 	}
 
+	// **画像を拡大表示**
 	function openImageInNewWindow(imageSrc) {
 		const newWindow = window.open("", "_blank", "width=1200,height=900");
 		newWindow.document.write(`
@@ -176,5 +147,44 @@ document.addEventListener("DOMContentLoaded", function () {
 			</html>
 		`);
 		newWindow.document.close();
+	}
+
+	// **削除ボタンを作成**
+	function createDeleteButton(index, isImage = false) {
+		const deleteButton = document.createElement("button");
+		// deleteButton.textContent = "×";
+		deleteButton.classList.add("delete-btn");
+
+		deleteButton.addEventListener("click", function () {
+			deleteMessage(index, isImage);
+		});
+
+		return deleteButton;
+	}
+
+	// **メッセージを削除（画像の場合は `chrome.storage.local` も削除）**
+	function deleteMessage(index, isImage = false) {
+		let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+
+		if (index >= 0 && index < messages.length) {
+			const deletedMessage = messages[index];
+
+			// **画像の場合は `chrome.storage.local` からも削除**
+			if (isImage && deletedMessage.type === "image") {
+				chrome.storage.local.remove("screenshot", () => {
+					console.log("🗑️ スクリーンショットを `chrome.storage.local` から削除しました");
+				});
+			}
+
+			messages.splice(index, 1);
+			localStorage.setItem("chatMessages", JSON.stringify(messages));
+			reloadChat();
+		}
+	}
+
+	// **チャットの表示をリロード**
+	function reloadChat() {
+		chatBox.innerHTML = "";
+		loadMessages();
 	}
 });
