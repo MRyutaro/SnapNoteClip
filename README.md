@@ -11,8 +11,8 @@
 
 ## Collaborator
 
-<p align="center">
-  <img src="/docs/images/ryutaro.png" alt="Ryutaro" width="80">
-  <img src="/docs/images/naoto.png" alt="Naoto" width="80">
-  <img src="/docs/images/riku.png" alt="Riku" width="80">
+<p align="left">
+  <img src="/docs/images/ryutaro.JPG" alt="Ryutaro" height="100">
+  <img src="/docs/images/naoto.JPG" alt="Naoto" height="100">
+  <img src="/docs/images/riku.png" alt="Riku" height="100">
 </p>
