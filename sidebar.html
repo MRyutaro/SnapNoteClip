@@ -112,111 +112,110 @@
 
 			/* メッセージ全体を包むラッパー */
 			.message-wrapper {
-            position: relative;
-            display: inline-block;
-            margin-top: 20px;
-            max-width: 90%;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
+				position: relative;
+				display: inline-block;
+				margin-top: 20px;
+				max-width: 90%;
+				word-wrap: break-word;
+				overflow-wrap: break-word;
+				word-break: break-word;
+				white-space: pre-wrap;
+			}
 
-		/* 削除・拡大ボタンのコンテナ */
-		.button-container {
-			position: absolute;
-			top: -4px;
-			right: -6px;
-			display: flex;
-			gap: 12px; /* ボタン間のスペースを確保 */
-			opacity: 0;
-			transition: opacity 0.2s ease-in-out;
-		}
+			/* 削除・拡大ボタンのコンテナ */
+			.button-container {
+				position: absolute;
+				top: -4px;
+				right: -6px;
+				display: flex;
+				gap: 12px; /* ボタン間のスペースを確保 */
+				opacity: 0;
+				transition: opacity 0.2s ease-in-out;
+			}
 
-		/* メッセージをホバーしたときにボタンを表示 */
-		.message-wrapper:hover .button-container {
-			opacity: 1;
-		}
+			/* メッセージをホバーしたときにボタンを表示 */
+			.message-wrapper:hover .button-container {
+				opacity: 1;
+			}
 
-		/* 削除ボタン（×）と拡大ボタン（🔍） */
-		.button-container {
-			position: absolute;
-			top: -4px;
-			right: -6px;
-			display: flex;
-			gap: 12px; /* ボタン間のスペースを確保 */
-			opacity: 0;
-			transition: opacity 0.2s ease-in-out;
-		}
+			/* 削除ボタン（×）と拡大ボタン（🔍） */
+			.button-container {
+				position: absolute;
+				top: -4px;
+				right: -6px;
+				display: flex;
+				gap: 12px; /* ボタン間のスペースを確保 */
+				opacity: 0;
+				transition: opacity 0.2s ease-in-out;
+			}
 
-		/* メッセージをホバーしたときにボタンを表示 */
-		.message-wrapper:hover .button-container {
-			opacity: 1;
-		}
+			/* メッセージをホバーしたときにボタンを表示 */
+			.message-wrapper:hover .button-container {
+				opacity: 1;
+			}
 
-		/* 削除・拡大ボタンのコンテナ */
-		.button-container {
-			position: absolute;
-			top: 0px;
-			right: -6px;
-			display: flex;
-			gap: 12px; /* ボタン間のスペースを確保 */
-			opacity: 0;
-			transition: opacity 0.2s ease-in-out;
-		}
+			/* 削除・拡大ボタンのコンテナ */
+			.button-container {
+				position: absolute;
+				top: 0px;
+				right: -6px;
+				display: flex;
+				gap: 12px; /* ボタン間のスペースを確保 */
+				opacity: 0;
+				transition: opacity 0.2s ease-in-out;
+			}
 
-		/* メッセージをホバーしたときにボタンを表示 */
-		.message-wrapper:hover .button-container {
-			opacity: 1;
-		}
+			/* メッセージをホバーしたときにボタンを表示 */
+			.message-wrapper:hover .button-container {
+				opacity: 1;
+			}
 
-		/* 削除ボタン（×）と拡大ボタン（🔍） *//* 削除ボタン（×）と拡大ボタン（🔍） */
-		.delete-btn,
-		.expand-btn {
-			width: 22px;
-			height: 22px;
-			background-color: #d3d3d3; /* 初期の背景色 */
-			border: none;
-			border-radius: 50%;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background-size: 60%;
-			background-repeat: no-repeat;
-			background-position: center;
-			transition: background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
-		}
+			/* 削除ボタン（×）と拡大ボタン（🔍） */ /* 削除ボタン（×）と拡大ボタン（🔍） */
+			.delete-btn,
+			.expand-btn {
+				width: 22px;
+				height: 22px;
+				background-color: #d3d3d3; /* 初期の背景色 */
+				border: none;
+				border-radius: 50%;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-size: 60%;
+				background-repeat: no-repeat;
+				background-position: center;
+				transition: background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+			}
 
-		/* 削除ボタン（×）のスタイル */
-		.delete-btn {
-			background-image: url('images/delete-icon.png'); /* 削除アイコン画像 */
-			background-blend-mode: multiply; /* アイコンを保持しつつ背景色を変更 */
-		}
+			/* 削除ボタン（×）のスタイル */
+			.delete-btn {
+				background-image: url("assets/images/delete-icon.png"); /* 削除アイコン画像 */
+				background-blend-mode: multiply; /* アイコンを保持しつつ背景色を変更 */
+			}
 
-		/* 拡大ボタン（🔍）のスタイル */
-		.expand-btn {
-			background-image: url('images/expand-icon.png'); /* 拡大アイコン画像 */
-			background-blend-mode: multiply; /* アイコンを保持しつつ背景色を変更 */
-		}
+			/* 拡大ボタン（🔍）のスタイル */
+			.expand-btn {
+				background-image: url("assets/images/expand-icon.png"); /* 拡大アイコン画像 */
+				background-blend-mode: multiply; /* アイコンを保持しつつ背景色を変更 */
+			}
 
-		/* 🟡 ホバー時に背景色を少し濃くし、アイコンを維持 */
-		.delete-btn:hover,
-		.expand-btn:hover {
-			background-color: #b0b0b0; /* ホバー時に少し濃く */
-			filter: brightness(95%); /* 全体の明るさを少し下げる（アイコンも自然に馴染む） */
-		}
+			/* 🟡 ホバー時に背景色を少し濃くし、アイコンを維持 */
+			.delete-btn:hover,
+			.expand-btn:hover {
+				background-color: #b0b0b0; /* ホバー時に少し濃く */
+				filter: brightness(95%); /* 全体の明るさを少し下げる（アイコンも自然に馴染む） */
+			}
 
-		/* 日時を右下に配置 */
-		.timestamp {
-			position: absolute;
-			bottom: -15px;
-			right: 0;
-			font-size: 12px;
-			color: rgba(0, 0, 0, 0.6);
-			white-space: nowrap;
-		}
-
+			/* 日時を右下に配置 */
+			.timestamp {
+				position: absolute;
+				bottom: -15px;
+				right: 0;
+				font-size: 12px;
+				color: rgba(0, 0, 0, 0.6);
+				white-space: nowrap;
+			}
 		</style>
 	</head>
 	<body>

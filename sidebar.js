@@ -93,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 	}
 
-
 	chrome.storage.onChanged.addListener((changes, namespace) => {
 		if (changes.screenshot) {
 			console.log("🔄 スクリーンショットが更新されました！");
@@ -124,7 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		const timeElement = createTimestampElement(timestamp);
 		const buttonContainer = createButtonContainer(index, imageSrc, true, false);
-
 
 		messageElement.appendChild(imageElement);
 		messageWrapper.appendChild(messageElement);
