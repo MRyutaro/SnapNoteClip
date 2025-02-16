@@ -5,9 +5,9 @@ try {
 	if (window.hasScreenshotSelection) {
 		console.log("🚨 すでに範囲選択リスナーが登録されています。再登録しません。");
 	} else {
-		window.hasScreenshotSelection = true;  // フラグをセット
+		window.hasScreenshotSelection = true;
 
-		// 選択範囲を示す赤い枠を作成
+		// 選択範囲の枠（赤い線）
 		let selectionDiv = document.createElement("div");
 		selectionDiv.style.position = "fixed";
 		selectionDiv.style.border = "2px dashed red";
@@ -18,6 +18,7 @@ try {
 		let startX, startY, endX, endY;
 		let isSelecting = false;
 
+		// クリックで選択開始
 		function handleMouseDown(e) {
 			console.log("🖱 mousedown:", e.clientX, e.clientY);
 			isSelecting = true;
@@ -28,26 +29,42 @@ try {
 			selectionDiv.style.width = "0px";
 			selectionDiv.style.height = "0px";
 			selectionDiv.style.display = "block";
+
 			// **テキスト選択防止**
 			document.body.style.userSelect = "none";
 		}
 
+		// マウス移動で範囲を拡大
 		function handleMouseMove(e) {
 			if (!isSelecting) return;
 			endX = e.clientX;
 			endY = e.clientY;
-			selectionDiv.style.width = `${Math.abs(endX - startX)}px`;
-			selectionDiv.style.height = `${Math.abs(endY - startY)}px`;
-			selectionDiv.style.left = `${Math.min(startX, endX)}px`;
-			selectionDiv.style.top = `${Math.min(startY, endY)}px`;
+
+			// どの方向からでも選択できるように修正
+			const left = Math.min(startX, endX);
+			const top = Math.min(startY, endY);
+			const width = Math.abs(endX - startX);
+			const height = Math.abs(endY - startY);
+
+			selectionDiv.style.left = `${left}px`;
+			selectionDiv.style.top = `${top}px`;
+			selectionDiv.style.width = `${width}px`;
+			selectionDiv.style.height = `${height}px`;
 		}
 
+		// マウスを離したらスクショ
 		function handleMouseUp(e) {
 			if (!isSelecting) return;
 			endX = e.clientX;
 			endY = e.clientY;
 			console.log("🖱 mouseup:", startX, startY, endX, endY);
 			isSelecting = false;
+
+			// **スクリーンショット前に赤枠を削除**
+			if (selectionDiv) {
+				selectionDiv.remove();
+				console.log("🟥 赤枠を削除しました");
+			}
 
 			// **選択範囲が小さすぎる場合は無視**
 			if (Math.abs(endX - startX) < 5 || Math.abs(endY - startY) < 5) {
@@ -56,24 +73,19 @@ try {
 				return;
 			}
 
-			// **スクリーンショット前に赤枠を確実に削除**
-			if (selectionDiv) {
-				selectionDiv.remove();
-				console.log("🟥 赤枠を削除しました");
-			}
-			// **少し遅らせてスクリーンショットを撮る**
+			// **スクリーンショットを撮影（devicePixelRatio補正）**
 			setTimeout(() => {
 				const dpr = window.devicePixelRatio || 1;
-				const coords = { 
-					x: startX * dpr, 
-					y: startY * dpr, 
-					width: (endX - startX) * dpr, 
-					height: (endY - startY) * dpr 
+				const coords = {
+					x: Math.min(startX, endX) * dpr,
+					y: Math.min(startY, endY) * dpr,
+					width: Math.abs(endX - startX) * dpr,
+					height: Math.abs(endY - startY) * dpr
 				};
 
-				console.log("📸 スクリーンショットを撮影します！座標:", coords);
+				console.log("📸 スクリーンショットを撮影！座標:", coords);
 
-				// **スクリーンショットをストレージに保存**
+				// **スクリーンショットを保存**
 				chrome.runtime.sendMessage({
 					action: "capture_screenshot",
 					coords: coords
@@ -86,9 +98,10 @@ try {
 				}
 
 				cleanupScreenshotSelection();
-			}, 10);  // **10ms遅延**
+			}, 10); // **10ms遅延でスクショを確実に処理**
 		}
 
+		// 選択処理を終了
 		function cleanupScreenshotSelection() {
 			document.removeEventListener("mousedown", handleMouseDown);
 			document.removeEventListener("mousemove", handleMouseMove);
@@ -97,6 +110,7 @@ try {
 			console.log("🚫 スクリーンショット機能をオフにしました");
 		}
 
+		// イベントリスナーを登録
 		document.addEventListener("mousedown", handleMouseDown);
 		document.addEventListener("mousemove", handleMouseMove);
 		document.addEventListener("mouseup", handleMouseUp);
