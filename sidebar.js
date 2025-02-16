@@ -170,4 +170,23 @@ document.addEventListener("DOMContentLoaded", function () {
 		chatBox.innerHTML = "";
 		loadMessages();
 	}
+
+	function openImageInNewWindow(imageSrc) {
+		const newWindow = window.open("", "_blank", "width=1200,height=900");
+		newWindow.document.write(`
+			<html>
+			<head>
+				<title>画像拡大表示</title>
+				<style>
+					body { display: flex; justify-content: center; align-items: center; height: 100vh; background: black; margin: 0; }
+					img { max-width: 90%; max-height: 90%; }
+				</style>
+			</head>
+			<body>
+				<img src="${imageSrc}" alt="拡大画像">
+			</body>
+			</html>
+		`);
+		newWindow.document.close();
+	}
 });
