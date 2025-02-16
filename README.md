@@ -46,7 +46,7 @@ Windowsであれば`Alt + Shift + S`, Macなら`Command + Shift + S`を押した
 
 ![move-tabs](/docs/movies/move-tabs.gif)
 
-## Collaborator
+## Collaborators
 
 <p align="left">
   <a href="https://github.com/MRyutaro" target="_blank">
