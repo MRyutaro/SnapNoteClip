@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (message.type === "text") {
 				addTextToChat(message.content, index, message.timestamp, message.isInitial);
 			} else if (message.type === "image") {
-				addImageToChat(message.content, index, message.timestamp);
+				addImageToChat(message.content, index, message.timestamp, message.tabId, message.url);
 			}
 		});
 	}
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		}, 100);
 	}
 
-	function displayScreenshot(tabId) {
+	function displayScreenshot(tabId, url) {
 		chrome.storage.local.get(["screenshot"], (data) => {
 			if (!data.screenshot) {
 				console.log("❌ スクリーンショットデータが見つかりません");
@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			}
 
 			const timestamp = getCurrentTimestamp();
-			const messageIndex = saveMessage({ type: "image", content: data.screenshot, timestamp: timestamp });
-			addImageToChat(data.screenshot, messageIndex, timestamp, tabId);
+			const messageIndex = saveMessage({ type: "image", content: data.screenshot, timestamp, tabId, url });
+			addImageToChat(data.screenshot, messageIndex, timestamp, tabId, url);
 		});
 	}
 
@@ -103,15 +103,15 @@ document.addEventListener("DOMContentLoaded", function () {
 					console.error("⚠️ アクティブなタブが見つかりません！");
 					return;
 				}
-				displayScreenshot(tabs[0].id);
+				displayScreenshot(tabs[0].id, tabs[0].url);
 			});
 		}
 	});
 
-	function addImageToChat(imageSrc, index, timestamp, tabId) {
+	function addImageToChat(imageSrc, index, timestamp, tabId, url) {
     const messageWrapper = document.createElement("div");
     messageWrapper.classList.add("message-wrapper");
-    messageWrapper.id = "tab-" + tabId; // tabIdをidに設定
+    messageWrapper.id = "tab-" + tabId; // 初期のtabIdを設定
 
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", "image-message");
@@ -134,15 +134,32 @@ document.addEventListener("DOMContentLoaded", function () {
     chatBox.appendChild(messageWrapper);
     scrollToBottom();
 
-		console.log(tabId)
-    // messageWrapperがクリックされたら該当のタブを開く
+    // タブを開く or アクティブ化する処理
     imageElement.onclick = function () {
 			if (tabId) {
-				console.log(`click ${tabId}`)
-				chrome.tabs.update(tabId, { active: true });
+				// タブが存在するかチェック
+				chrome.tabs.get(tabId, function (tab) {
+					if (chrome.runtime.lastError || !tab) {
+						// タブが閉じていた場合、新しく開く
+						chrome.tabs.create({ url }, function (newTab) {
+							tabId = newTab.id; // 新しいタブIDを更新
+							messageWrapper.id = "tab-" + tabId; // IDも更新
+						});
+					} else {
+						// 既存のタブをアクティブにする
+						chrome.tabs.update(tabId, { active: true });
+					}
+				});
+			} else {
+				// tabIdがない場合、新しく開く
+				chrome.tabs.create({ url }, function (newTab) {
+					tabId = newTab.id; // 新しいタブIDを更新
+					messageWrapper.id = "tab-" + tabId; // IDも更新
+				});
 			}
     };
 	}
+
 
 
 	function getCurrentTimestamp() {

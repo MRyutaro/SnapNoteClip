@@ -77,8 +77,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				.catch((err) => {
 					console.error("❌ 画像処理エラー:", err);
 					sendResponse({ success: false, error: err.message });
-				}); // ここで `.catch()` を閉じる
+				});
 		});
-		return true; // 非同期処理のため `true` を返す
+		return true;
 	}
 });
