@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		messageElement.textContent = text;
 
 		const timeElement = createTimestampElement(timestamp);
-		const deleteButton = createDeleteButton(index);
+		const deleteButton = createDeleteButton(index, false, isInitial);
 
 		messageWrapper.appendChild(messageElement);
 		messageWrapper.appendChild(timeElement);
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		};
 
 		const timeElement = createTimestampElement(timestamp);
-		const deleteButton = createDeleteButton(index, true);
+		const deleteButton = createDeleteButton(index, true, false);
 
 		messageElement.appendChild(imageElement);
 		messageWrapper.appendChild(messageElement);
@@ -140,7 +140,12 @@ document.addEventListener("DOMContentLoaded", function () {
 		return timeElement;
 	}
 
-	function createDeleteButton(index, isImage = false) {
+	function createDeleteButton(index, isImage = false, isInitial = false) {
+		// isInitialがtrueの場合、削除ボタンを作成しない
+		if (isInitial) {
+			return document.createElement("span"); // 空の要素を返す
+		}
+
 		const deleteButton = document.createElement("button");
 		deleteButton.classList.add("delete-btn");
 
