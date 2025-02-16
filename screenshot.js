@@ -80,7 +80,7 @@ try {
 					x: Math.min(startX, endX) * dpr,
 					y: Math.min(startY, endY) * dpr,
 					width: Math.abs(endX - startX) * dpr,
-					height: Math.abs(endY - startY) * dpr
+					height: Math.abs(endY - startY) * dpr,
 				};
 
 				console.log("📸 スクリーンショットを撮影！座標:", coords);
@@ -88,7 +88,7 @@ try {
 				// **スクリーンショットを保存**
 				chrome.runtime.sendMessage({
 					action: "capture_screenshot",
-					coords: coords
+					coords: coords,
 				});
 
 				// **選択解除**
@@ -98,7 +98,7 @@ try {
 				}
 
 				cleanupScreenshotSelection();
-			}, 10); // **10ms遅延でスクショを確実に処理**
+			}, 100); // **100ms遅延でスクショを確実に処理**
 		}
 
 		// 選択処理を終了
