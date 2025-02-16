@@ -77,7 +77,7 @@
 				box-sizing: border-box;
 			}
 
-			button {
+			#send-btn {
 				padding: 8px 12px;
 				background: #007bff;
 				color: white;
@@ -86,7 +86,7 @@
 				cursor: pointer;
 			}
 
-			button:hover {
+			#send-btn:hover {
 				background: #0056b3;
 			}
 
@@ -122,65 +122,101 @@
             white-space: pre-wrap;
         }
 
-        /* 削除・拡大ボタンのコンテナ */
-        .button-container {
-            position: absolute;
-            top: -4px;
-            right: -6px;
-            display: flex;
-            gap: 12px; /* ボタン間のスペースを確保 */
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-        }
+		/* 削除・拡大ボタンのコンテナ */
+		.button-container {
+			position: absolute;
+			top: -4px;
+			right: -6px;
+			display: flex;
+			gap: 12px; /* ボタン間のスペースを確保 */
+			opacity: 0;
+			transition: opacity 0.2s ease-in-out;
+		}
 
-        /* メッセージをホバーしたときにボタンを表示 */
-        .message-wrapper:hover .button-container {
-            opacity: 1;
-        }
+		/* メッセージをホバーしたときにボタンを表示 */
+		.message-wrapper:hover .button-container {
+			opacity: 1;
+		}
 
-        /* 削除ボタン（×）と拡大ボタン（🔍） */
-        .delete-btn,
-        .expand-btn {
-            width: 26px;
-            height: 26px;
-            background-color: #d3d3d3;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s ease-in-out;
-        }
+		/* 削除ボタン（×）と拡大ボタン（🔍） */
+		.button-container {
+			position: absolute;
+			top: -4px;
+			right: -6px;
+			display: flex;
+			gap: 12px; /* ボタン間のスペースを確保 */
+			opacity: 0;
+			transition: opacity 0.2s ease-in-out;
+		}
 
-        /* 削除ボタン（×）のスタイル */
-        .delete-btn::before {
-            content: "×";
-            font-size: 14px;
-            color: black;
-            font-weight: bold;
-        }
+		/* メッセージをホバーしたときにボタンを表示 */
+		.message-wrapper:hover .button-container {
+			opacity: 1;
+		}
 
-        /* 拡大ボタン（🔍）のスタイル */
-        .expand-btn::before {
-            content: "🔍";
-            font-size: 14px;
-        }
+		/* 削除・拡大ボタンのコンテナ */
+		.button-container {
+			position: absolute;
+			top: 0px;
+			right: -6px;
+			display: flex;
+			gap: 12px; /* ボタン間のスペースを確保 */
+			opacity: 0;
+			transition: opacity 0.2s ease-in-out;
+		}
 
-        /* 削除ボタン・拡大ボタンのホバー時 */
-        .delete-btn:hover, .expand-btn:hover {
-            background-color: #a9a9a9;
-        }
+		/* メッセージをホバーしたときにボタンを表示 */
+		.message-wrapper:hover .button-container {
+			opacity: 1;
+		}
 
-        /* 日時を右下に配置 */
-        .timestamp {
-            position: absolute;
-            bottom: -15px;
-            right: 0;
-            font-size: 12px;
-            color: rgba(0, 0, 0, 0.6);
-            white-space: nowrap;
-        }
+		/* 削除ボタン（×）と拡大ボタン（🔍） *//* 削除ボタン（×）と拡大ボタン（🔍） */
+		.delete-btn,
+		.expand-btn {
+			width: 22px;
+			height: 22px;
+			background-color: #d3d3d3; /* 初期の背景色 */
+			border: none;
+			border-radius: 50%;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-size: 60%;
+			background-repeat: no-repeat;
+			background-position: center;
+			transition: background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+		}
+
+		/* 削除ボタン（×）のスタイル */
+		.delete-btn {
+			background-image: url('images/delete-icon.png'); /* 削除アイコン画像 */
+			background-blend-mode: multiply; /* アイコンを保持しつつ背景色を変更 */
+		}
+
+		/* 拡大ボタン（🔍）のスタイル */
+		.expand-btn {
+			background-image: url('images/expand-icon.png'); /* 拡大アイコン画像 */
+			background-blend-mode: multiply; /* アイコンを保持しつつ背景色を変更 */
+		}
+
+		/* 🟡 ホバー時に背景色を少し濃くし、アイコンを維持 */
+		.delete-btn:hover,
+		.expand-btn:hover {
+			background-color: #b0b0b0; /* ホバー時に少し濃く */
+			filter: brightness(95%); /* 全体の明るさを少し下げる（アイコンも自然に馴染む） */
+		}
+
+		/* 日時を右下に配置 */
+		.timestamp {
+			position: absolute;
+			bottom: -15px;
+			right: 0;
+			font-size: 12px;
+			color: rgba(0, 0, 0, 0.6);
+			white-space: nowrap;
+		}
+
 		</style>
 	</head>
 	<body>
