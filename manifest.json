@@ -1,1 +1,26 @@
-
+{
+	"manifest_version": 3,
+	"name": "Snap Note Clip",
+	"version": "1.0",
+	"description": "ページの指定範囲を切り取って記録し、コメントを追加できるChrome拡張機能です。",
+	"permissions": ["sidePanel", "tabs", "storage", "activeTab", "scripting"],
+	"host_permissions": ["<all_urls>"],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"side_panel": {
+		"default_path": "sidebar.html"
+	},
+	"action": {
+		"default_title": "サイドパネルを開く"
+	},
+	"commands": {
+		"capture_screenshot": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+S",
+				"mac": "Command+Shift+S"
+			},
+			"description": "スクリーンショットを撮る"
+		}
+	}
+}
