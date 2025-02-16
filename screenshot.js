@@ -9,7 +9,7 @@ try {
 
 		// 選択範囲を示す赤い枠を作成
 		let selectionDiv = document.createElement("div");
-		selectionDiv.style.position = "fixed";
+		selectionDiv.style.position = "absolute";
 		selectionDiv.style.border = "2px dashed red";
 		selectionDiv.style.zIndex = "10000";
 		selectionDiv.style.pointerEvents = "none";
