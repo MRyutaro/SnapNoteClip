@@ -93,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 	}
 
-	displayScreenshot();
 
 	chrome.storage.onChanged.addListener((changes, namespace) => {
 		if (changes.screenshot) {
