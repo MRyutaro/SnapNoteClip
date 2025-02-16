@@ -18,11 +18,44 @@ try {
 		let startX, startY, endX, endY;
 		let isSelecting = false;
 
+
+		function updateSelectionBox(e) {
+			endX = e.clientX + window.scrollX;
+			endY = e.clientY + window.scrollY;
+			selectionDiv.style.width = `${Math.abs(endX - startX)}px`;
+			selectionDiv.style.height = `${Math.abs(endY - startY)}px`;
+			selectionDiv.style.left = `${Math.min(startX, endX)}px`;
+			selectionDiv.style.top = `${Math.min(startY, endY)}px`;
+		}
+
+		function autoScroll(e) {
+			let margin = 50;
+			let maxSpeed = 50;
+			let speedFactor = 5;
+			let scrollSpeedY = 0;
+			let scrollSpeedX = 0;
+
+			if (e.clientY < margin) {
+				scrollSpeedY = Math.min(maxSpeed, (margin - e.clientY) * speedFactor);
+				window.scrollBy(0, -scrollSpeedY);
+			} else if (e.clientY > window.innerHeight - margin) {
+				scrollSpeedY = Math.min(maxSpeed, (e.clientY - (window.innerHeight - margin)) * speedFactor);
+				window.scrollBy(0, scrollSpeedY);
+			}
+			if (e.clientX < margin) {
+				scrollSpeedX = Math.min(maxSpeed, (margin - e.clientX) * speedFactor);
+				window.scrollBy(-scrollSpeedX, 0);
+			} else if (e.clientX > window.innerWidth - margin) {
+				scrollSpeedX = Math.min(maxSpeed, (e.clientX - (window.innerWidth - margin)) * speedFactor);
+				window.scrollBy(scrollSpeedX, 0);
+			}
+		}
+
 		function handleMouseDown(e) {
 			console.log("🖱 mousedown:", e.clientX, e.clientY);
 			isSelecting = true;
-			startX = e.clientX;
-			startY = e.clientY;
+			startX = e.clientX + window.scrollX;
+			startY = e.clientY + window.scrollY;
 			selectionDiv.style.left = `${startX}px`;
 			selectionDiv.style.top = `${startY}px`;
 			selectionDiv.style.width = "0px";
@@ -34,18 +67,12 @@ try {
 
 		function handleMouseMove(e) {
 			if (!isSelecting) return;
-			endX = e.clientX;
-			endY = e.clientY;
-			selectionDiv.style.width = `${Math.abs(endX - startX)}px`;
-			selectionDiv.style.height = `${Math.abs(endY - startY)}px`;
-			selectionDiv.style.left = `${Math.min(startX, endX)}px`;
-			selectionDiv.style.top = `${Math.min(startY, endY)}px`;
+			updateSelectionBox(e);
+			autoScroll(e);
 		}
 
 		function handleMouseUp(e) {
 			if (!isSelecting) return;
-			endX = e.clientX;
-			endY = e.clientY;
 			console.log("🖱 mouseup:", startX, startY, endX, endY);
 			isSelecting = false;
 
@@ -64,11 +91,11 @@ try {
 			// **少し遅らせてスクリーンショットを撮る**
 			setTimeout(() => {
 				const dpr = window.devicePixelRatio || 1;
-				const coords = { 
-					x: startX * dpr, 
-					y: startY * dpr, 
-					width: (endX - startX) * dpr, 
-					height: (endY - startY) * dpr 
+				const coords = {
+					x: startX * dpr,
+					y: startY * dpr,
+					width: (endX - startX) * dpr,
+					height: (endY - startY) * dpr
 				};
 
 				console.log("📸 スクリーンショットを撮影します！座標:", coords);
