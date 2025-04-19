@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Snap Note Clip",
-	"version": "1.0",
+	"version": "1.1",
 	"description": "ページの指定範囲を切り取って記録しノートを作成できるChrome拡張機能です。",
 	"icons": {
 		"16": "docs/images/snap_note_clip_logo.png",
