@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	const chatBox = document.getElementById("chat-box");
 
 	const INITIAL_MESSAGES = [
-		{ type: "text", content: "でスクリーンショットのショートカットはchrome://extensions/shortcutsから設定を行ってください。", isInitial: true },
+		{ type: "text", content: "スクリーンショットのショートカットはchrome://extensions/shortcutsから設定を行ってください。", isInitial: true },
 		{ type: "text", content: "このチャットでスクリーンショットを保存して、後で参照できます。", isInitial: true },
 	];
 
